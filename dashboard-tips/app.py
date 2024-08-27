@@ -1,3 +1,4 @@
+import yaml, os
 import faicons as fa
 import plotly.express as px
 
@@ -10,10 +11,22 @@ from shiny.express import input, ui
 
 bill_rng = (min(tips.total_bill), max(tips.total_bill))
 
+if os.path.exists("secrets"):
+    with open("secrets") as stream:
+        try:
+            OPENAI_API_KEY = yaml.safe_load(stream)["OPENAI_API_KEY"]
+        except yaml.YAMLError as exc:
+            print(exc)
+
 # Add page title and sidebar
-ui.page_opts(title="Restaurant tipping", fillable=True)
+ui.page_opts(title="AI Agent Sandbox", fillable=True)
 
 with ui.sidebar(open="desktop"):
+    ui.input_text(
+        "OPENAI_API_KEY",
+        "OpenAI API Key",
+        value=OPENAI_API_KEY
+    )
     ui.input_slider(
         "total_bill",
         "Bill amount",
