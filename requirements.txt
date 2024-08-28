@@ -6,3 +6,5 @@ pandas
 ridgeplot
 langchain
 langchain-anthropic
+langchain-community
+wikipedia
