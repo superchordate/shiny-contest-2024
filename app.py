@@ -38,12 +38,11 @@ with ui.layout_columns(col_widths=[6, 6, 12]):
 
     with ui.card(full_screen=True):
         with ui.card_header(class_="d-flex justify-content-between align-items-center"):
-            "Chat with Your Agent"            
-            # ui.input_text(
-            #     "OPENAI_API_KEY",
-            #     "OpenAI API Key",
-            #     value=OPENAI_API_KEY
-            # )
+            "Chat with Your Agent"
+        ui.input_text(
+            "userinput",
+            "User Input"
+        )
 
         
 
