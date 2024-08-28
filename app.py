@@ -9,11 +9,11 @@ from langchain_core.tools import tool
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.tools import render_text_description
 
+from langchain.agents import AgentType, initialize_agent
+
 # automatic tool bind:
 from langchain import hub
 from langchain_anthropic import ChatAnthropic
-#from langchain_anthropic  import AnthropicLLM
-
 
 # manual tool bind:
 # from langchain.tools.render import render_text_description
@@ -67,12 +67,12 @@ with ui.layout_columns(col_widths=[12]):
             "",
             width = "100%",
             value = "Can you find three pictures of the moon published between the years 2014 and 2020?"
+        )        
+        ui.input_action_button(
+            "submit",
+            "Submit",
+            width = '200px'
         )
-        with ui.layout_columns(col_widths=[2]):
-            ui.input_action_button(
-                "submit",
-                "Submit"
-            )
 
         @render.text
         @reactive.event(input.submit)
@@ -104,10 +104,12 @@ with ui.layout_columns(col_widths=[12]):
                         tools.append(tool)
 
                 # create the agent and executor. 
-                #print(tools)
-                agent = create_tool_calling_agent(get_llm(), tools, prompt)
-                agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)                
-                return agent_executor.invoke({"input": input.userinput()})
+                # agent = create_tool_calling_agent(get_llm(), tools, prompt)
+                # agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+                # return agent_executor.invoke({"input": input.userinput()})['text']
+            
+                agent = initialize_agent(tools, get_llm(), agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
+                return agent.run(input.userinput())
             
             # manual tool bind:
             # tools = [multiply, add, exponentiate]            
