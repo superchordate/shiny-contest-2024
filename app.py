@@ -27,21 +27,9 @@ if os.path.exists("secrets"):
 else:
     ANTHROPIC_API_KEY = ''
 
-# initial tool.
-@tool
-def multiply(first_int: int, second_int: int) -> int:
-    """Multiply two integers together."""
-    return first_int * second_int
-
-@tool
-def add(first_int: int, second_int: int) -> int:
-    "Add two integers."
-    return first_int + second_int
-
-@tool
-def exponentiate(base: int, exponent: int) -> int:
-    "Exponentiate the base to the exponent power."
-    return base**exponent
+# loop over the files in tools/ and run each file. 
+# This will register the tools with the agent.
+tool_files = [f for f in os.listdir("tools") if f.endswith(".py")]
 
 # Add page title and sidebar
 ui.page_opts(title="AI Agent Sandbox", fillable=True)
@@ -51,6 +39,13 @@ with ui.sidebar(open="desktop"):
         "ANTHROPIC_API_KEY",
         "OpenAI API Key",
         value=ANTHROPIC_API_KEY
+    )
+    ui.input_select(  
+        "tools",  
+        "Select which tools your Agent can use:",  
+        tool_files,  
+        multiple=True,  
+        selected = tool_files
     )
 
 # Add main content
@@ -80,14 +75,22 @@ with ui.layout_columns(col_widths=[12]):
 
         @render.text
         @reactive.event(input.submit)
+        @reactive.event(input.tools)
         def chatresults():
             
             # automatic tool bind:
             prompt = hub.pull("hwchase17/openai-tools-agent")
-            tools = [multiply, add, exponentiate]
-            agent = create_tool_calling_agent(get_llm(), tools, prompt)
-            agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-            with reactive.isolate():
+            with reactive.isolate():    
+
+                tools = []
+                for tool_file in input.tools():    
+                    with open(f"tools/{tool_file}") as stream:
+                        exec(stream.read())
+                        exec(f"tools.append({tool_file.replace('.py', '')})")
+
+                agent = create_tool_calling_agent(get_llm(), tools, prompt)
+                agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+                
                 return agent_executor.invoke({"input": input.userinput()})
             
             # manual tool bind:
