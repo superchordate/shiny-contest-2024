@@ -1,7 +1,6 @@
 import yaml, os
 import faicons as fa
 import plotly.express as px
-from shared import app_dir, tips
 from shinywidgets import render_plotly
 from shiny import reactive, render
 from shiny.ui import output_text_verbatim
@@ -114,7 +113,7 @@ with ui.layout_columns(col_widths=[12]):
             # print(result)
             # return result
 
-ui.include_css(app_dir / "styles.css")
+ui.include_css("./styles.css")
 
 @reactive.calc
 def get_llm():
